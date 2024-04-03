@@ -1,0 +1,7 @@
+Commit "Dynamic Fric"
+
+modelversion2.py:
+Added a dynamic friction part to the friction force. With coefficient eta.
+
+plot.py:
+added a slider for eta
