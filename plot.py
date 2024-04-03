@@ -33,13 +33,15 @@ ax_omega_drib = plt.axes([0.3, 0.15, 0.5, 0.03], facecolor=axcolor)
 #vertical axis
 ax_zoom = plt.axes([0.04, 0.31, 0.03, 0.5], facecolor=axcolor)
 ax_mu = plt.axes([0.1, 0.31, 0.03, 0.5], facecolor=axcolor)
+ax_eta = plt.axes([0.16, 0.31, 0.03, 0.5], facecolor=axcolor)
 
 ##Define slider parameters
 slider_parameters = {'v_kick': {'initial': 10,'min': 0,'max': 100,'label':'v_kick','axis':ax_v_kick,'orientation':'horizontal','format': '%.1f m/s'}, 
                      'theta_kick': {'initial': np.pi/3,'min': 0,'max': np.pi,'label':'theta_kick','axis':ax_theta_kick,'orientation':'horizontal', 'format': '%.3f rad'},
-                     'omega_drib': {'initial': 10,'min': 0,'max': 100,'label':'omega_drib','axis':ax_omega_drib,'orientation':'horizontal', 'format': '%.1f rad/s'	}, 
+                     'omega_drib': {'initial': 4000,'min': 2000,'max': 6000,'label':'omega_drib','axis':ax_omega_drib,'orientation':'horizontal', 'format': '%.1f rad/s'	}, 
                      'zoom': {'initial': 10,'min': 1,'max': 100,'label':'zoom','axis':ax_zoom,'orientation':'vertical','format': '%.1f m'}, 
-                     'mu': {'initial': 0.1,'min': 0,'max': 1,'label':'mu','axis':ax_mu,'orientation':'vertical','format': '%.3f'}
+                     'mu': {'initial': 0.1,'min': 0,'max': 1,'label':'mu','axis':ax_mu,'orientation':'vertical','format': '%.3f'},
+                     'eta': {'initial': 0.1,'min': 0,'max': 1,'label':'eta','axis':ax_eta,'orientation':'vertical','format': '%.3f'},
 }
 
 slider = {}
@@ -64,6 +66,7 @@ def update(val):
     omega_drib = np.array([slider['omega_drib'].val,0,0])
     mu = slider['mu'].val
     zoom = slider['zoom'].val
+    eta = slider['eta'].val
 
     ax.set(xlim=(-zoom,zoom),ylim=(0,zoom))
     ball = Ball(mu,M,R)
