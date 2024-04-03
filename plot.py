@@ -50,7 +50,7 @@ for k,v in slider_parameters.items():
     slider[k] = Slider(v['axis'], v['label'], v['min'], v['max'], valinit=v['initial'],orientation=v['orientation'],valfmt=v['format'])
 
 robot = Robot(x0,[0,0,0],[0,0,0],0)
-ball = Ball(slider_parameters['mu']['initial'],M,R)
+ball = Ball(slider_parameters['mu']['initial'],slider_parameters['eta']['initial'],M,R)
 shot = Shot(robot,ball,np.array([slider_parameters['omega_drib']['initial'],0,0]),slider_parameters['v_kick']['initial'],slider_parameters['theta_kick']['initial'])
 x, _, _, _ = shot.solve(t_bounds,N)
 
@@ -69,7 +69,7 @@ def update(val):
     eta = slider['eta'].val
 
     ax.set(xlim=(-zoom,zoom),ylim=(0,zoom))
-    ball = Ball(mu,M,R)
+    ball = Ball(mu,eta,M,R)
     shot = Shot(robot,ball,omega_drib,v_kick,theta_kick)
     x, _, _, _ = shot.solve(t_bounds,N)
     trajectory.set_data(x[0],x[1])
