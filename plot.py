@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider,Button
 
 g = 9.81 #gravity [m/s^2]
-M = 1 #mass [kg]
-R = 1 #radius [m]
+M = 0.0459#mass [kg]
+R = 0.0427/2 #radius [m]
 
 x0 = np.array([0,0,0]) #initial position [m]
 

@@ -27,6 +27,17 @@ class Ball():
         F = - (self.mu * self.M * g * u/np.sqrt(u.dot(u)) + self.eta * self.M * g * u) #friction force
         return F
     
+    def T_rot(self,omega): #rotational energy
+        T = omega @ self.I_tensor @ omega
+        return T
+
+    def T_cm(self,v): #Transversal of center of mass
+        T = 1/2 * self.M * v @ v
+        return T
+    
+    def T(self,v,omega): #total energy
+        return self.T_rot(omega) + self.T_cm(v)
+    
 class Shot():
     def __init__(self,robot: Robot,ball: Ball,omega_drib: np.ndarray,v_kick: float,theta_kick: float):
         self.ball = ball #ball object
