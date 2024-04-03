@@ -2,22 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
 
-mu = 1 #friction coff []
-g = 9.81 #gravity [m/s^2]
-M = 1 #mass [kg]
-R = 1 #radius [m]
-I = 2/5 * M * R**2 #moment of inertia [kg*m^2]
-
-
-v_kick = 30 #velocity of kick [m/s]
-theta_kick = np.pi/3 #angle of kick [rad]
-x0 = np.array([0,0,0]) #initial position [m]
-omega_drib = np.array([150,0,0]) #angular velocity of dribbler [rad/s]
-
-N = 1000 #number of steps
-t_bounds = (0,10) #time bounds [s]
-
 k_hat = np.array([0,0,1]) #unit vector in z direction
+g=9.81 # gravity [m/s^2]
 
 
 class Robot():
@@ -29,15 +15,16 @@ class Robot():
 
 
 class Ball():
-    def __init__(self,mu,M,R):
+    def __init__(self,mu,eta,M,R):
         self.mu = mu #friction coff []
+        self.eta = eta #dyamic friction coff []
         self.M = M #mass [kg]
         self.R = R #radius [m]
         self.I = 2/5 * M * R**2 #moment of inertia [kg*m^2]
 
     def F_fric(self,v,omega):
-        u = v - self.R * np.cross(omega, k_hat)
-        F = -self.mu * self.M * g * u/np.sqrt(u.dot(u))
+        u = v - self.R * np.cross(omega, k_hat) #relative velocity to ground
+        F = - (self.mu * self.M * g * u/np.sqrt(u.dot(u)) + self.eta * self.M * g * u) #friction force
         return F
     
 class Shot():
@@ -62,7 +49,7 @@ class Shot():
         domega = 1/self.ball.I * -self.ball.R * np.cross(k_hat, F) #derivative of angular velocity
         return np.concatenate((dx,dv,domega)) #return derivative of state vector
         
-    def solve(self,t_bounds,N) -> tuple[np.ndarray,np.ndarray,np.ndarray]:
+    def solve(self,t_bounds,N) -> 'tuple[np.ndarray,np.ndarray,np.ndarray]':
         t = np.linspace(*t_bounds,N) #time array
         sol = sp.integrate.solve_ivp(self._f,t_bounds,self.y0,t_eval=t) #solve ivp
         x = sol.y[0:3] #position

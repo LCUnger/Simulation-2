@@ -33,13 +33,15 @@ ax_omega_drib = plt.axes([0.3, 0.15, 0.5, 0.03], facecolor=axcolor)
 #vertical axis
 ax_zoom = plt.axes([0.04, 0.31, 0.03, 0.5], facecolor=axcolor)
 ax_mu = plt.axes([0.1, 0.31, 0.03, 0.5], facecolor=axcolor)
+ax_eta = plt.axes([0.16, 0.31, 0.03, 0.5], facecolor=axcolor)
 
 ##Define slider parameters
 slider_parameters = {'v_kick': {'initial': 10,'min': 0,'max': 100,'label':'v_kick','axis':ax_v_kick,'orientation':'horizontal','format': '%.1f m/s'}, 
                      'theta_kick': {'initial': np.pi/3,'min': 0,'max': np.pi,'label':'theta_kick','axis':ax_theta_kick,'orientation':'horizontal', 'format': '%.3f rad'},
-                     'omega_drib': {'initial': 10,'min': 0,'max': 100,'label':'omega_drib','axis':ax_omega_drib,'orientation':'horizontal', 'format': '%.1f rad/s'	}, 
+                     'omega_drib': {'initial': 4000,'min': 2000,'max': 6000,'label':'omega_drib','axis':ax_omega_drib,'orientation':'horizontal', 'format': '%.1f rad/s'	}, 
                      'zoom': {'initial': 10,'min': 1,'max': 100,'label':'zoom','axis':ax_zoom,'orientation':'vertical','format': '%.1f m'}, 
-                     'mu': {'initial': 0.1,'min': 0,'max': 1,'label':'mu','axis':ax_mu,'orientation':'vertical','format': '%.3f'}
+                     'mu': {'initial': 0.1,'min': 0,'max': 1,'label':'mu','axis':ax_mu,'orientation':'vertical','format': '%.3f'},
+                     'eta': {'initial': 0.1,'min': 0,'max': 1,'label':'eta','axis':ax_eta,'orientation':'vertical','format': '%.3f'},
 }
 
 slider = {}
@@ -48,7 +50,7 @@ for k,v in slider_parameters.items():
     slider[k] = Slider(v['axis'], v['label'], v['min'], v['max'], valinit=v['initial'],orientation=v['orientation'],valfmt=v['format'])
 
 robot = Robot(x0,[0,0,0],[0,0,0],0)
-ball = Ball(slider_parameters['mu']['initial'],M,R)
+ball = Ball(slider_parameters['mu']['initial'],slider_parameters['eta']['initial'],M,R)
 shot = Shot(robot,ball,np.array([slider_parameters['omega_drib']['initial'],0,0]),slider_parameters['v_kick']['initial'],slider_parameters['theta_kick']['initial'])
 x, _, _, _ = shot.solve(t_bounds,N)
 
@@ -64,9 +66,10 @@ def update(val):
     omega_drib = np.array([slider['omega_drib'].val,0,0])
     mu = slider['mu'].val
     zoom = slider['zoom'].val
+    eta = slider['eta'].val
 
     ax.set(xlim=(-zoom,zoom),ylim=(0,zoom))
-    ball = Ball(mu,M,R)
+    ball = Ball(mu,eta,M,R)
     shot = Shot(robot,ball,omega_drib,v_kick,theta_kick)
     x, _, _, _ = shot.solve(t_bounds,N)
     trajectory.set_data(x[0],x[1])
