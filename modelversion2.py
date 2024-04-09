@@ -25,7 +25,6 @@ class Ball():
     def F_fric(self,v,omega):
         u = v - self.R * np.cross(omega, k_hat) #relative velocity to ground
         F = - (self.mu * self.M * g * u/np.sqrt(u.dot(u)) + self.eta * self.M * g * u) #friction force
-        Gamma = np.cross(np.array([0,0,1]),self.ball_ofcenter * F) #torque
         return F
     
     def T_rot(self,omega): #rotational energy
@@ -58,11 +57,11 @@ class Shot():
         omega = y[6:9] #angular velocity
 
         F = -self.ball.F_fric(v,omega) #friction force
-        Gamma = np.cross(self.ball.R*k_hat, F) #torque
+        Gamma = np.cross(-self.ball.R*k_hat, F) #torque
 
         dx = v #derivative of position
         dv = F/self.ball.M #derivative of velocity
-        domega = 1/self.ball.I * (Gamma - np.cross(omega,self.ball.I * omega)) #derivative of angular velocity
+        domega = 1/self.ball.I * (Gamma )# -np.cross(omega,self.ball.I * omega)) #derivative of angular velocity
         return np.concatenate((dx,dv,domega)) #return derivative of state vector
         
     def solve(self,t_bounds,N) -> 'tuple[np.ndarray,np.ndarray,np.ndarray]':
