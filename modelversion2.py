@@ -21,11 +21,15 @@ class Ball():
         self.M = M #mass [kg]
         self.R = R #radius [m]
         self.I = 2/5 * M * R**2 #moment of inertia [kg*m^2]
+        self.rolling = False
 
-    def F_fric(self,v,omega):
-        u = v - self.R * np.cross(omega, k_hat) #relative velocity to ground
-        F = - (self.mu * self.M * g * u/np.sqrt(u.dot(u)) + self.eta * self.M * g * u) #friction force
-        return F
+    def F_fric(self,v,omega,rolling):
+        u = v - self.R * np.cross(omega, - k_hat) #relative velocity to ground
+        if rolling:
+            return np.zeros(3) #no friction force
+        else:
+            F = - (self.mu * self.M * g * u/np.sqrt(u.dot(u)) + self.eta * self.M * g * u) #friction force
+            return F
     
     def T_rot(self,omega): #rotational energy
         T = omega @ self.I_tensor @ omega
@@ -48,7 +52,10 @@ class Shot():
         self.y0 = np.concatenate((self.x0,self.v0,self.omega0)) #initial state vector
 
     def event_rolling(self,t,y):
-        pass
+        v = y[3:6] #velocity
+        omega = y[6:9] #angular velocity
+        u = v - self.ball.R * np.cross(omega, -k_hat) #relative velocity to ground
+        return (np.abs(u[0])<0.1) and (np.abs(u[1])<0.1) and (np.abs(u[2])<0.1) #return True if the ball is rolling
 
 
     def _f(self,t,y):
@@ -56,18 +63,22 @@ class Shot():
         v = y[3:6] #velocity
         omega = y[6:9] #angular velocity
 
-        F = -self.ball.F_fric(v,omega) #friction force
+        if self.event_rolling(t,y):
+            self.ball.rolling = True
+
+        F = -self.ball.F_fric(v,omega,self.ball.rolling) #friction force
         Gamma = np.cross(-self.ball.R*k_hat, F) #torque
+        print(self.ball.rolling)
 
         dx = v #derivative of position
         dv = F/self.ball.M #derivative of velocity
-        domega = 1/self.ball.I * (Gamma )# -np.cross(omega,self.ball.I * omega)) #derivative of angular velocity
+        domega = 1/self.ball.I * (Gamma  + np.cross(omega,self.ball.I * omega)) #derivative of angular velocity
         return np.concatenate((dx,dv,domega)) #return derivative of state vector
         
     def solve(self,t_bounds,N) -> 'tuple[np.ndarray,np.ndarray,np.ndarray]':
         t = np.linspace(*t_bounds,N) #time array
-        sol = sp.integrate.solve_ivp(self._f,t_bounds,self.y0,t_eval=t) #solve ivp
+        sol = sp.integrate.solve_ivp(self._f,t_bounds,self.y0,t_eval=t,events=self.event_rolling) #solve ivp
         x = sol.y[0:3] #position
         v = sol.y[3:6] #velocity
         omega = sol.y[6:9] #angular velocity
-        return x,v,omega,sol.t #return position, velocity, angular velocity, and time array
+        return x,v,omega,sol.t,sol #return position, velocity, angular velocity, and time array
