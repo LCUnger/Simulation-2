@@ -27,9 +27,9 @@ class Ball():
         u = v - self.R * np.cross(omega, - k_hat) #relative velocity to ground
         if rolling:
             return np.zeros(3) #no friction force
-        else:
-            F = - (self.mu * self.M * g * u/np.sqrt(u.dot(u)) + self.eta * self.M * g * u) #friction force
-            return F
+        
+        F = - (self.mu * self.M * g * u/np.sqrt(u.dot(u)) + self.eta * self.M * g * u) #friction force
+        return F
     
     def T_rot(self,omega): #rotational energy
         T = omega @ self.I_tensor @ omega
@@ -68,7 +68,6 @@ class Shot():
 
         F = -self.ball.F_fric(v,omega,self.ball.rolling) #friction force
         Gamma = np.cross(-self.ball.R*k_hat, F) #torque
-        print(self.ball.rolling)
 
         dx = v #derivative of position
         dv = F/self.ball.M #derivative of velocity

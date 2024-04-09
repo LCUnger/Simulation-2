@@ -3,6 +3,7 @@ from modelversion2 import Robot, Ball, Shot
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider,Button
+from time import time
 
 g = 9.81 #gravity [m/s^2]
 M = 0.0459#mass [kg]
