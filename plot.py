@@ -52,7 +52,9 @@ for k,v in slider_parameters.items():
 robot = Robot(x0,[0,0,0],[0,0,0],0)
 ball = Ball(slider_parameters['mu']['initial'],slider_parameters['eta']['initial'],M,R)
 shot = Shot(robot,ball,np.array([slider_parameters['omega_drib']['initial'],0,0]),slider_parameters['v_kick']['initial'],slider_parameters['theta_kick']['initial'])
-x, _, _, _ = shot.solve(t_bounds,N)
+x, _, _, _,sol = shot.solve(t_bounds,N)
+
+print(sol.t_events)
 
 
 arrow = ax.arrow(0,0,10,10,head_width=2, head_length=2, fc='red', ec='red',label='initial velocity')
@@ -71,7 +73,7 @@ def update(val):
     ax.set(xlim=(-zoom,zoom),ylim=(0,zoom))
     ball = Ball(mu,eta,M,R)
     shot = Shot(robot,ball,omega_drib,v_kick,theta_kick)
-    x, _, _, _ = shot.solve(t_bounds,N)
+    x, _, _, _ ,_= shot.solve(t_bounds,N)
     trajectory.set_data(x[0],x[1])
 
     arrow.remove()
@@ -98,4 +100,23 @@ reset_button.on_clicked(reset)
 
 
 ax.legend()
+
+fig2,ax2 = plt.subplots(1,3,figsize=(8,4))
+ax2[0].plot(sol.t, sol.y[3], label='v_x')
+ax2[0].plot(sol.t, sol.y[4], label='v_y')
+ax2[0].plot(sol.t, sol.y[5], label='v_z')
+ax2[1].plot(sol.t, sol.y[6], label='omega_x')
+ax2[1].plot(sol.t, sol.y[7], label='omega_y')
+ax2[1].plot(sol.t, sol.y[8], label='omega_z')
+
+u = sol.y[3:6] - R * np.cross(sol.y[6:], -k_hat,axis=0)
+ax2[2].plot(sol.t,u[0],label='u_x')
+ax2[2].plot(sol.t,u[1],label='u_y')
+ax2[2].plot(sol.t,u[2],label='u_z')
+ax2[2].plot(sol.t,np.sqrt(u[0]**2 + u[1]**2 + u[2]**2),label='|u|')
+
+for axis in ax2:
+    axis.legend()
+    axis.grid()
+
 plt.show()
